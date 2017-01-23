@@ -1,0 +1,52 @@
+8
+
+dir
+82
+https://sdserver/svn/idata/idata/src/com/shendeng/web
+https://sdserver/svn/idata
+
+
+
+2016-12-28T08:15:22.621783Z
+75
+qy
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+d8dac535-3dfd-5845-8230-081765370aea
+
+QuotationAPI.java
+file
+
+
+
+
+2016-12-28T07:49:38.785000Z
+69957e241fb920cf6708a58e0508db2d
+2016-12-28T08:15:22.621783Z
+75
+qy
+
+QuotationAct.java
+file
+
+
+
+
+2016-12-01T08:25:38.755000Z
+b6c3a8c69ca58aaced260bb85dc044d2
+2016-12-08T09:27:04.095426Z
+73
+qy
+

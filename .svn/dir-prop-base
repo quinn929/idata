@@ -1,0 +1,9 @@
+K 18
+svn:global-ignores
+V 45
+*.classpath
+*.myeclipse
+*.project
+*.settings
+
+END

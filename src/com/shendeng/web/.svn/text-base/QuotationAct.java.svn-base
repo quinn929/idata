@@ -1,0 +1,571 @@
+package com.shendeng.web;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.shendeng.datamanager.KlineManager;
+import com.shendeng.datamanager.Level1Manager;
+import com.shendeng.datamanager.ProcessIndustryManager;
+import com.shendeng.datamanager.ProcessKlineManager;
+import com.shendeng.datamanager.ProcessLevel1Manager;
+import com.shendeng.datamanager.ProcessStockInfoManager;
+import com.shendeng.utils.Const;
+import com.shendeng.utils.DateTool;
+import com.shendeng.utils.HttpUtil;
+import com.shendeng.utils.JsoupUtils;
+import com.shendeng.utils.RedisUtil;
+import com.shendeng.utils.StockUtils;
+import com.shendeng.utils.StrTool;
+
+/**
+ * 行情中心act
+ * 
+ * @author qy
+ * @date 2016年4月27日
+ */
+public class QuotationAct {
+
+	// private QuotationService service = QuotationService.getInstance();
+
+	/**
+	 * 获取分时数据
+	 * 
+	 * @param simpleCode
+	 * @return
+	 * @throws IOException
+	 */
+	public String getStockMinute(HttpServletRequest request) throws IOException {
+		String simpleCode = request.getParameter("code");
+		JSONObject result = ProcessKlineManager.getInstance().getStockMinute(
+				simpleCode);
+		return result.toString();
+	}
+
+	/**
+	 * 获取日K数据
+	 * 
+	 * @param simpleCode
+	 *            股票代码
+	 */
+	public String getStockDays(HttpServletRequest request) {
+		// 股票代码
+		String simpleCode = request.getParameter("code");
+		// 需要查询的日K开始时间 yyyyMMdd
+		String beginDate = request.getParameter("beginDate");
+		// 需要查询的日K结束时间 yyyyMMdd
+		String endDate = request.getParameter("endDate");
+
+		JSONObject stockMap = null;
+		if (StockUtils.getAllIdxSimpleCode().contains(simpleCode)) {
+			stockMap = ProcessKlineManager.getInstance().getIndexDays(
+					simpleCode);
+		} else {
+			stockMap = ProcessKlineManager.getInstance().getStockDays(
+					simpleCode);
+		}
+		return stockMap.toString();
+	}
+
+	/**
+	 * 周K
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stockWeeks(HttpServletRequest request) {
+		// 股票代码
+		String code = request.getParameter("code");
+		// 需要查询的周K开始时间 yyyyMMdd
+		String beginDate = request.getParameter("beginDate");
+		// 需要查询的周K结束时间 yyyyMMdd
+		String endDate = request.getParameter("endDate");
+		JSONObject result = null;
+		if (StockUtils.getAllIdxSimpleCode().contains(code)) {
+			result = ProcessKlineManager.getInstance().getIndexWeeks(code,
+					null, null);
+		} else {
+			result = ProcessKlineManager.getInstance().getStockWeeks(code);
+		}
+		return result.toString();
+	}
+
+	/**
+	 * 月K线
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stockMonths(HttpServletRequest request) {
+		// 股票代码
+		String code = request.getParameter("code");
+		// 需要查询的月K开始时间 yyyyMMdd
+		String beginDate = request.getParameter("beginDate");
+		// 需要查询的月K结束时间 yyyyMMdd
+		String endDate = request.getParameter("endDate");
+		JSONObject result = null;
+		if (StockUtils.getAllIdxSimpleCode().contains(code)) {
+			result = ProcessKlineManager.getInstance().getIndexMonths(code,
+					null, null);
+		} else {
+			result = ProcessKlineManager.getInstance().getStockMonths(code);
+		}
+		return result.toString();
+	}
+
+	/**
+	 * 查询五档数据
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stocknewdata(HttpServletRequest request) {
+		String codes = request.getParameter("code");
+		JSONObject result = ProcessLevel1Manager.getInstance().stockNewData(
+				codes);
+		return result.toString();
+	}
+
+	/**
+	 * 查询五档数据
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stocknewdata2(HttpServletRequest request) {
+		String codes = request.getParameter("code");
+		JSONObject result = ProcessLevel1Manager.getInstance().stockNewData(
+				codes);
+		return result.toString();
+	}
+
+	/**
+	 * 行业排行
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String tradeupdownlist(HttpServletRequest request) {
+		String typeCode = request.getParameter("typeCode");
+		String counts = request.getParameter("count");
+		int count = -1;
+		if(counts != null && !"".equals(counts)){
+			count = StrTool.toInt(counts)-1;
+		}
+		JSONObject result = ProcessIndustryManager.getInstance()
+				.tradeUpDownList(typeCode,count);
+		return result.toString();
+	}
+
+	/**
+	 * 股票排行2 数据项精简为三项
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stockupdownlist(HttpServletRequest request) {
+		// 页码
+		String start_s = request.getParameter("start");
+		// 页数
+		String count_s = request.getParameter("count");
+		// 排序类型 default:up
+		// up、down、swingup、volumnup、volumnpriceup、turnoverrateup
+		String typeCode = request.getParameter("typeCode");
+
+		int count = count_s == null ? 5000 : Integer.parseInt(count_s);
+		int start = start_s == null ? 0 : Integer.parseInt(start_s);
+
+		String result = ProcessLevel1Manager.getInstance().stockUpDownList(
+				start, count, typeCode);
+		return result;
+	}
+
+	/**
+	 * 个股(涨、跌、振幅)详细
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String updownlist(HttpServletRequest request) {
+		// 页码
+		String start_s = request.getParameter("start");
+		// 页数
+		String count_s = request.getParameter("count");
+		// 排序类型 default:up
+		// up、down、swingup、volumnup、volumnpriceup、turnoverrateup
+		String typeCode = request.getParameter("typeCode");
+		
+		int count = start_s == null ? 10 : StrTool.toInt(count_s);
+		int start = count_s == null ? 0 : StrTool.toInt(count_s);
+		JSONObject result = ProcessLevel1Manager.getInstance().upDownList(
+				start, count, typeCode);
+		return result.toString();
+
+	}
+	
+	public String updownlistindex(HttpServletRequest request) {
+		// 页码
+		String start_s = request.getParameter("start");
+		// 页数
+		String count_s = request.getParameter("count");
+		// 排序类型 default:up
+		// up、down、swingup、volumnup、volumnpriceup、turnoverrateup
+		String typeCode = request.getParameter("typeCode");
+		
+		int count = start_s == null ? 10 : StrTool.toInt(count_s);
+		int start = count_s == null ? 0 : StrTool.toInt(count_s);
+		JSONObject result = ProcessLevel1Manager.getInstance().upDownListIndex(
+				start, count, typeCode);
+		return result.toString();
+		
+	}
+
+	/**
+	 * 个股(涨、跌、振幅)详细(门户)
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String updownlist2(HttpServletRequest request) {
+		// 页码
+		String start_s = request.getParameter("start");
+		// 页数
+		String count_s = request.getParameter("count");
+		// 排序类型 default:up
+		// up、down、swingup、volumnup、volumnpriceup、turnoverrateup
+		String typeCode = request.getParameter("typeCode");
+		int count = count_s == null ? 10 : Integer.parseInt(count_s);
+		int start = start_s == null ? 0 : Integer.parseInt(start_s);
+		JSONObject result = ProcessLevel1Manager.getInstance().upDownList2(
+				start, count, typeCode);
+		return result.toString();
+	}
+
+	/**
+	 * 通用行业排行
+	 * 
+	 * @param start
+	 *            开始条数
+	 * @param count
+	 *            结束条数
+	 * @param typeCode
+	 *            类型
+	 * @return
+	 * @throws Exception
+	 */
+	private JSONObject getUpDown(Integer start, Integer count, String typeCode)
+			throws Exception {
+		Set<String> dataSet = null;
+		List<Map<String, String>> resultDataList = new ArrayList<Map<String, String>>();
+		String name = "";
+		typeCode = typeCode == null ? "up" : typeCode;
+		if (typeCode.equals("up")) {
+			name = "涨幅榜";
+			dataSet = RedisUtil.getJedisUtil().SORTSET.zrevrange(
+					Const.RKEY_LEVEL1_SORT_changePct, 0, -1);
+		} else if (typeCode.equals("down")) {
+			name = "跌幅榜";
+			dataSet = RedisUtil.getJedisUtil().SORTSET.zrange(
+					Const.RKEY_LEVEL1_SORT_changePct, 0, -1);
+		} else if (typeCode.equals("swingup")) {
+			name = "振幅榜";
+			dataSet = RedisUtil.getJedisUtil().SORTSET.zrevrange(
+					Const.RKEY_LEVEL1_SORT_swing, 0, -1);
+		} else if (typeCode.equals("volumnup")) {
+			name = "成交量榜";
+			dataSet = RedisUtil.getJedisUtil().SORTSET.zrevrange(
+					Const.RKEY_LEVEL1_SORT_volumnup, 0, -1);
+		} else if (typeCode.equals("volumnpriceup")) {
+			name = "成交额榜";
+			dataSet = RedisUtil.getJedisUtil().SORTSET.zrevrange(
+					Const.RKEY_LEVEL1_SORT_volumnpriceup, 0, -1);
+		} else if (typeCode.equals("turnoverrateup")) {
+			name = "换手率榜";
+			dataSet = RedisUtil.getJedisUtil().SORTSET.zrevrange(
+					Const.RKEY_LEVEL1_SORT_turnoverrateup, 0, -1);
+		}
+
+		Iterator<String> dataIter = dataSet.iterator();
+		int i = 0;
+		while (dataIter.hasNext()) {
+			if (i >= start) {
+				if (i == start + count) {
+					break;
+				}
+				String detail = dataIter.next();
+				com.alibaba.fastjson.JSONArray item = JSON.parseArray(detail);
+				com.alibaba.fastjson.JSONArray codePriceAry = JSON
+						.parseArray(StrTool.toString(item.get(0)));
+				Map<String, String> codePriceMap = StockUtils
+						.stockPriceArray2Map(codePriceAry, null);
+				// 获取振幅数据
+				if (typeCode.equals("swingup")) {
+					codePriceMap.put("changeRate", codePriceMap.get("swing"));
+				}
+				resultDataList.add(codePriceMap);
+			}
+			i++;
+		}
+
+		JSONObject jo1 = new JSONObject();
+		jo1.put("name", name);
+		jo1.put("typeCode", typeCode);
+		jo1.put("data", resultDataList);
+		return jo1;
+	}
+
+	/**
+	 * 行业成分股排行
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String tradelist(HttpServletRequest request) {
+		// 页码
+		String start_s = request.getParameter("start");
+		// 页数
+		String count_s = request.getParameter("count");
+		// 行业id
+		String typeId = request.getParameter("typeId");
+		// 排序方式 default:up up、down、orderup、orderdown
+		String typeCode = request.getParameter("typeCode");
+		typeCode = typeCode == null ? "up" : typeCode.toLowerCase();
+		int start = start_s == null ? 0 : Integer.parseInt(start_s);
+		int count = count_s == null ? 10 : Integer.parseInt(count_s);
+		JSONObject result = ProcessIndustryManager.getInstance().tradelist(
+				start, count, typeId, typeCode);
+		return result.toString();
+	}
+
+	/**
+	 * 首页指数
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stockindexlist() {
+		JSONObject result = ProcessStockInfoManager.getInstance()
+				.stockindexlist();
+		return result.toString();
+	}
+
+	/**
+	 * APP 股票详情接口
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stockinfoApp(HttpServletRequest request) {
+		String codes = request.getParameter("code");
+		JSONObject result = ProcessLevel1Manager.getInstance().getStockInfoApp(
+				codes);
+		return result.toString();
+	}
+
+	/**
+	 * 股票详情接口(门户)
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stockinfo(HttpServletRequest request) {
+		String codein = request.getParameter("code");
+		JSONObject result = ProcessStockInfoManager.getInstance().stockInfo(
+				codein);
+		return result.toString();
+	}
+
+	/**
+	 * 股票数据库
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String fmstocks() {
+		String result = ProcessStockInfoManager.getInstance().fmStocks();
+		return result;
+	}
+
+	/**
+	 * 股票数据库版本判断
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String search() {
+		JSONObject result = new ProcessStockInfoManager().getInstance()
+				.search();
+		return result.toString();
+	}
+
+	/**
+	 * html5 分时图接口 门户使用
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stockminute2(HttpServletRequest request) {
+		String code = request.getParameter("code");
+		JSONObject result = new JSONObject();
+		try {
+			result = ProcessKlineManager.getInstance().getStockMinute(code);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result.toString();
+	}
+
+	/**
+	 * 获取通联地域分类
+	 * 
+	 * @param leave
+	 *            地区级别
+	 * @return
+	 */
+	public String stockRegions(HttpServletRequest request) {
+		String leave = request.getParameter("leave");
+		JSONObject result = ProcessStockInfoManager.getInstance().stockRegions(
+				leave);
+		return result.toString();
+	}
+
+	/**
+	 * 根据编码获取合并利润
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String getFdmtISLately(HttpServletRequest request) {
+		String code = request.getParameter("code");
+		JSONObject result = ProcessStockInfoManager.getInstance()
+				.getFdmtISLately(code);
+		return result.toString();
+	}
+
+	/**
+	 * 键盘精灵
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String getEquinfo(HttpServletRequest request) {
+		// 股票代码
+		String ticker = request.getParameter("ticker");
+		// 页数
+		String pagesize = request.getParameter("pagesize");
+		// 页码
+		String pagenum = request.getParameter("pagenum");
+		ticker = ticker == null ? "" : ticker;
+		pagesize = pagesize == null ? "10" : pagesize;
+		pagenum = pagenum == null ? "1" : pagenum;
+		JSONObject result = ProcessStockInfoManager.getInstance().getEquinfo(
+				ticker, pagesize, pagenum);
+		return result.toString();
+	}
+
+	/**
+	 * 根据板块获取相关股票(门户)
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String getStocks(HttpServletRequest request) {
+		String typeid = request.getParameter("typeid");
+		String start_s = request.getParameter("start");
+		String count_s = request.getParameter("count");
+		String typeCode = request.getParameter("typeCode");
+		JSONObject result = ProcessStockInfoManager.getInstance().getStocks(
+				typeid, start_s, count_s, typeCode);
+		return result.toString();
+	}
+
+	/**
+	 * 获取指数涨跌幅
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String indexUpDownList(HttpServletRequest request) {
+		JSONObject result = ProcessLevel1Manager.getInstance()
+				.indexUpDownList();
+		return result.toString();
+	}
+
+	/**
+	 * 获取指数板块排行
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String indexTradeUpDownList(HttpServletRequest request) {
+		JSONObject result = ProcessLevel1Manager.getInstance()
+				.indexTradeUpDownList();
+		return result.toString();
+	}
+
+	/**
+	 * 设置股票版本号
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public static double setSearch() {
+		Double version = Math.random();
+		RedisUtil.getJedisUtil().STRINGS
+				.set("stockVersion", version.toString());
+		return version;
+	}
+
+	/**
+	 * 五档明细数据
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String stocklevel1detail(HttpServletRequest request) { // 页码
+		Integer start = StrTool.toInt(request.getParameter("start"));
+		if(start == null || start == 0){
+			start = 1;
+		}
+		// 页数
+		Integer count = StrTool.toInt(request.getParameter("count"));
+		if(count == null || count == 0){
+			count = 10;
+		}
+		// 股票代码
+		String code = request.getParameter("code");
+		JSONObject result = ProcessLevel1Manager.getInstance().getLevel1Detail(start, count, code);
+		return result.toString();
+	}
+	
+	public String stocklevel1detail1(HttpServletRequest request) { // 页码
+		Integer start = StrTool.toInt(request.getParameter("start"));
+		if(start == null || start == 0){
+			start = 1;
+		}
+		// 页数
+		Integer count = StrTool.toInt(request.getParameter("count"));
+		if(count == null || count == 0){
+			count = 10;
+		}
+		// 股票代码
+		String code = request.getParameter("code");
+		JSONObject result = ProcessLevel1Manager.getInstance().getLevel1DetailData(start, count, code);
+		return result.toString();
+	}
+}

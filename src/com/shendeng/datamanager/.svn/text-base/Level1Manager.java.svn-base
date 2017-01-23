@@ -1,0 +1,829 @@
+package com.shendeng.datamanager;
+
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.csvreader.CsvReader;
+import com.shendeng.utils.Const;
+import com.shendeng.utils.DateTool;
+import com.shendeng.utils.JedisUtil.Hash;
+import com.shendeng.utils.JedisUtil.Keys;
+import com.shendeng.utils.JedisUtil.SortSet;
+import com.shendeng.utils.RedisUtil;
+import com.shendeng.utils.StockUtils;
+import com.shendeng.utils.StrTool;
+import com.shendeng.utils.SystemConfig;
+import com.shendeng.utils.WmcloudUtil;
+import com.shendeng.web.QuotationAct;
+
+/**
+ * 股票快照逻辑处理
+ * 
+ * @author naxj
+ * 
+ */
+public class Level1Manager {
+	private Hash hash = RedisUtil.getJedisUtil().HASH;
+	private SortSet sorset = RedisUtil.getJedisUtil().SORTSET;
+	private Keys keys = RedisUtil.getJedisUtil().KEYS;
+
+	private static Level1Manager self = new Level1Manager();
+
+	public static Level1Manager getInstance() {
+		return self;
+	}
+
+	/**
+	 * 下载股票数据快照
+	 * 
+	 * @param assetClass
+	 *            证券类型
+	 * @param exchangeCD
+	 *            交易所代码
+	 * @throws IOException
+	 */
+	public void downloadData() throws IOException {
+		try {
+			getStockIdx();
+			Map<String, IdentityHashMap<Double, String>> rank = getStockLevel();
+			if (rank != null && !rank.isEmpty()) {
+				if (rank.get("stortChange") != null) {
+					sorset.zrem(Const.RKEY_LEVEL1_SORT_change);
+					sorset.zadd(Const.RKEY_LEVEL1_SORT_change,
+							rank.get("stortChange"));
+				}
+				if (rank.get("stortChangePct") != null) {
+					sorset.zrem(Const.RKEY_LEVEL1_SORT_changePct);
+					sorset.zadd(Const.RKEY_LEVEL1_SORT_changePct,
+							rank.get("stortChangePct"));
+				}
+				if (rank.get("stortSwing") != null) {
+					sorset.zrem(Const.RKEY_LEVEL1_SORT_swing);
+					sorset.zadd(Const.RKEY_LEVEL1_SORT_swing,
+							rank.get("stortSwing"));
+				}
+				if (rank.get("stortVolumnup") != null) {
+					sorset.zrem(Const.RKEY_LEVEL1_SORT_volumnup);
+					sorset.zadd(Const.RKEY_LEVEL1_SORT_volumnup,
+							rank.get("stortVolumnup"));
+				}
+				if (rank.get("stortVolumnpriceup") != null) {
+					sorset.zrem(Const.RKEY_LEVEL1_SORT_volumnpriceup);
+					sorset.zadd(Const.RKEY_LEVEL1_SORT_volumnpriceup,
+							rank.get("stortVolumnpriceup"));
+				}
+				if (rank.get("stortTurnoverrateup") != null) {
+					sorset.zrem(Const.RKEY_LEVEL1_SORT_turnoverrateup);
+					sorset.zadd(Const.RKEY_LEVEL1_SORT_turnoverrateup,
+							rank.get("stortTurnoverrateup"));
+				}
+			}
+		} catch (Exception e) {
+			new Exception("下载股票数据快照"
+					+ DateTool.DateToStr(new Date(), DateTool.TIME_FORMAT))
+					.printStackTrace();
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 获取指数基本信息
+	 * 
+	 * @param priceMap
+	 *            行情快照redis Key
+	 * @throws IOException
+	 */
+	public void getStockIdx() throws IOException {
+		String allIdx = SystemConfig.getSysVal("idx.code");
+		CsvReader readerIdx = WmcloudUtil.url2csv(Const.UW_LEVEL1_CSV
+				+ "?securityID=" + allIdx + "&assetClass=IDX&exchangeCD=");
+		if (readerIdx != null) {
+			readerIdx.readRecord();
+			while (readerIdx.readRecord()) {
+				String[] items = readerIdx.getValues();
+				String simpleCode = StockUtils.getLTCode(items[0]) + items[1];
+				items = StockUtils.arrayAddLength(items, 3);
+				items[Const.PRICE_assetClass] = "IDX";
+				items[Const.PRICE_industryID1] = "";
+				items[Const.PRICE_industryName1] = "";
+				hash.hset(Const.RKEY_LEVEL1_, simpleCode,
+						JSON.toJSONString(items));
+			}
+			readerIdx.close();
+		}
+	}
+
+	/**
+	 * 获取沪市和深市快照数据
+	 * 
+	 * @param priceMap
+	 *            行情快照redis Key
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, IdentityHashMap<Double, String>> getStockLevel()
+			throws IOException {
+		Map<String, IdentityHashMap<Double, String>> rank = new HashMap<String, IdentityHashMap<Double, String>>();
+		IdentityHashMap<Double, String> stortChange = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortChangePct = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortSwing = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortVolumnup = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortVolumnpriceup = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortTurnoverrateup = new IdentityHashMap<Double, String>();
+		// 沪市股票
+		CsvReader readerHs = WmcloudUtil.url2csv(Const.UW_LEVEL1_CSV
+				+ "?securityID=&assetClass=E&exchangeCD=XSHE");
+		// 深市股票
+		CsvReader readerSs = WmcloudUtil.url2csv(Const.UW_LEVEL1_CSV
+				+ "?securityID=&assetClass=E&exchangeCD=XSHG");
+		if (readerHs != null) {
+			readerHs.readRecord();
+			while (readerHs.readRecord()) {
+				String[] items = readerHs.getValues();
+				if ("XHKG".equals(items[0])) {// 不保存港股
+					continue;
+				}
+				String simpleCode = StockUtils.getLTCode(items[0]) + items[1];
+				items = StockUtils.arrayAddLength(items, 3);
+				items[Const.PRICE_assetClass] = "XSHE";
+				items[Const.PRICE_industryID1] = "";
+				items[Const.PRICE_industryName1] = "";
+				// 保存全部信息
+				hash.hset(Const.RKEY_LEVEL1_, simpleCode,
+						JSON.toJSONString(items));
+				// 保存涨跌幅额排序
+				String[] sortChangeItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice], items[Const.PRICE_change] };
+				String change = StrTool.zero2decimal(items[Const.PRICE_change]);
+				stortChange.put(Double.parseDouble(change),
+						JSON.toJSONString(sortChangeItem));
+				// 保存涨跌幅排序
+				String[] sortChangePctItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice],
+						items[Const.PRICE_changePct] };
+				String changePct = StrTool
+						.zero2decimal(items[Const.PRICE_changePct]);
+				stortChangePct.put(Double.parseDouble(changePct),
+						JSON.toJSONString(sortChangePctItem));
+				// 保存振幅排序
+				String[] sortAmplitudeItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice],
+						items[Const.PRICE_amplitude] };
+				String amplitude = StrTool
+						.zero2decimal(items[Const.PRICE_amplitude]);
+				stortSwing.put(Double.parseDouble(amplitude),
+						JSON.toJSONString(sortAmplitudeItem));
+
+				// 成交量榜
+				String[] sortVolumeItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice], items[Const.PRICE_volume] };
+				String volume = StrTool.zero2decimal(items[Const.PRICE_volume]);
+				stortVolumnup.put(Double.parseDouble(volume),
+						JSON.toJSONString(sortVolumeItem));
+
+				// 成交额榜
+				String[] sortValueItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice], items[Const.PRICE_value] };
+				String value = StrTool.zero2decimal(items[Const.PRICE_value]);
+				stortVolumnpriceup.put(Double.parseDouble(value),
+						JSON.toJSONString(sortValueItem));
+
+				// 换手率榜
+				String[] sortTurnoverRateItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice],
+						items[Const.PRICE_turnoverRate] };
+				String turnoverRate = StrTool
+						.zero2decimal(items[Const.PRICE_turnoverRate]);
+				stortTurnoverrateup.put(Double.parseDouble(turnoverRate),
+						JSON.toJSONString(sortTurnoverRateItem));
+			}
+			readerHs.close();
+		}
+
+		if (readerSs != null) {
+			readerSs.readRecord();
+			while (readerSs.readRecord()) {
+				String[] items = readerSs.getValues();
+				if ("XHKG".equals(items[0])) {// 不保存港股
+					continue;
+				}
+				String simpleCode = StockUtils.getLTCode(items[0]) + items[1];
+				items = StockUtils.arrayAddLength(items, 3);
+				items[Const.PRICE_assetClass] = "XSHG";
+				items[Const.PRICE_industryID1] = "";
+				items[Const.PRICE_industryName1] = "";
+				// 保存全部信息
+				hash.hset(Const.RKEY_LEVEL1_, simpleCode,
+						JSON.toJSONString(items));
+
+				// 保存涨跌幅额排序
+				String[] sortChangeItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice], items[Const.PRICE_change] };
+				String change = StrTool.zero2decimal(items[Const.PRICE_change]);
+				stortChange.put(Double.parseDouble(change),
+						JSON.toJSONString(sortChangeItem));
+				// 保存涨跌幅排序
+				String[] sortChangePctItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice],
+						items[Const.PRICE_changePct] };
+				String changePct = StrTool
+						.zero2decimal(items[Const.PRICE_changePct]);
+				stortChangePct.put(Double.parseDouble(changePct),
+						JSON.toJSONString(sortChangePctItem));
+				// 保存振幅排序
+				String[] sortAmplitudeItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice],
+						items[Const.PRICE_amplitude] };
+				String amplitude = StrTool
+						.zero2decimal(items[Const.PRICE_amplitude]);
+				stortSwing.put(Double.parseDouble(amplitude),
+						JSON.toJSONString(sortAmplitudeItem));
+				// 成交量榜
+				String[] sortVolumeItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice], items[Const.PRICE_volume] };
+				String volume = StrTool.zero2decimal(items[Const.PRICE_volume]);
+				stortVolumnup.put(Double.parseDouble(volume),
+						JSON.toJSONString(sortVolumeItem));
+
+				// 成交额榜
+				String[] sortValueItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice], items[Const.PRICE_value] };
+				String value = StrTool.zero2decimal(items[Const.PRICE_value]);
+				stortVolumnpriceup.put(Double.parseDouble(value),
+						JSON.toJSONString(sortValueItem));
+
+				// 换手率榜
+				String[] sortTurnoverRateItem = new String[] { simpleCode,
+						items[Const.PRICE_lastPrice],
+						items[Const.PRICE_turnoverRate] };
+				String turnoverRate = StrTool
+						.zero2decimal(items[Const.PRICE_turnoverRate]);
+				stortTurnoverrateup.put(Double.parseDouble(turnoverRate),
+						JSON.toJSONString(sortTurnoverRateItem));
+			}
+			readerSs.close();
+		}
+		rank.put("stortChange", stortChange);
+		rank.put("stortChangePct", stortChangePct);
+		rank.put("stortSwing", stortSwing);
+		rank.put("stortVolumnup", stortVolumnup);
+		rank.put("stortVolumnpriceup", stortVolumnpriceup);
+		rank.put("stortTurnoverrateup", stortTurnoverrateup);
+		return rank;
+	}
+
+	/**
+	 * 获取通联(当前分钟的)五档明细数据
+	 */
+	public void getLevel1DetailByTL() throws IOException {
+		String startTime = DateTool.DateToStr(new Date(), "HH:mm");
+		String endTime = DateTool.DateToStr(
+				DateTool.minuteChange(new Date(), 1), "HH:mm");
+		try {
+			for (Object obj : hash.hgetAll(Const.RKEY_STOCK_INFO_).keySet()) {
+				String code = StrTool.toString(obj);
+				String tlCode = StockUtils.getTLStockCode(code);
+				CsvReader readerLevel1 = WmcloudUtil
+						.url2csv(Const.LEVEL1DETAIL
+								+ "?field=dataDate,dataTime,ticker,exchangeCD,shortNM,prevClosePrice,openPrice,volume,value,deal,highPrice,lowPrice,lastPrice,bidPrice1,bidVolume1,bidPrice2,bidVolume2,bidPrice3,bidVolume3,bidPrice4,bidVolume4,bidPrice5,bidVolume5,askPrice1,askVolume1,askPrice2,askVolume2,askPrice3,askVolume3,askPrice4,askVolume4,askPrice5,askVolume5&securityID="
+								+ tlCode + "&startTime=" + startTime
+								+ "&endTime=" + endTime);
+				if (readerLevel1 != null) {
+					Map<Double, String> map = new HashMap<Double, String>();
+					readerLevel1.readHeaders();
+					while (readerLevel1.readRecord()) {
+						String[] items = readerLevel1.getValues();
+						String key = items[1];
+						Double orderKey = Double.parseDouble(DateTool
+								.changeDateFormat(key, "HH:mm:ss", "HHmmss"));
+						map.put(orderKey, JSON.toJSONString(items));
+					}
+					if (map != null && !map.isEmpty()) {
+						sorset.zadd(Const.RKEY_LEVEL1_DETAIL_ + code, map);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 获取集合竞价数据
+	 * 
+	 * @return void
+	 * @throws IOException
+	 */
+
+	private Integer flag = 0;
+	private String flagDate = "";
+
+	public synchronized void getAuctionIntra() throws IOException {
+		System.out.println("获取集合竞价数据"
+				+ DateTool.DateToStr(new Date(), DateTool.TIME_FORMAT));
+		ExecutorService threadPool = Executors.newFixedThreadPool(10);
+		for (Object obj : hash.hgetAll(Const.RKEY_STOCK_INFO_).keySet()) {
+			threadPool.submit(new getAuctionIntraThread(obj));
+		}
+		threadPool.shutdown();
+		while (true) {
+			if (threadPool.isTerminated()) {
+				tmp2formal();
+				if (flag == 0
+						&& DateTool.DateToStr(new Date(), "yyyyMMdd").equals(
+								flagDate)) {
+					QuotationAct.setSearch();
+					flag++;
+				}
+				break;
+			}
+		}
+	}
+
+	/**
+	 * 将昨日最后价格变为今日昨收价
+	 * 
+	 * @return void
+	 */
+	public boolean setLastPrice2PrevClosePrice() {
+		ExecutorService threadPool = Executors.newFixedThreadPool(10);
+		for (Object obj : hash.hgetAll(Const.RKEY_STOCK_INFO_).keySet()) {
+			JSONArray level1InfoAry = JSON.parseArray(hash.hget(
+					Const.RKEY_LEVEL1_, StrTool.toString(obj)));
+			level1InfoAry.set(Const.PRICE_prevClosePrice,
+					level1InfoAry.getBigDecimal(Const.PRICE_lastPrice));
+
+			// 卖出五档数据清零
+			level1InfoAry.set(Const.PRICE_askBook_price1, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_price2, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_price3, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_price4, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_price5, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_volume1, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_volume2, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_volume3, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_volume4, "0.00");
+			level1InfoAry.set(Const.PRICE_askBook_volume5, "0.00");
+			// 买入五档数据清零
+			level1InfoAry.set(Const.PRICE_bidBook_price1, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_price2, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_price3, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_price4, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_price5, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_volume1, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_volume2, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_volume3, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_volume4, "0.00");
+			level1InfoAry.set(Const.PRICE_bidBook_volume5, "0.00");
+
+			level1InfoAry.set(Const.PRICE_dataDate,
+					DateTool.DateToStr(new Date(), "yyyy-MM-dd"));
+			level1InfoAry.set(Const.PRICE_dataTime,
+					DateTool.DateToStr(new Date(), "HH:mm:ss"));
+			level1InfoAry.set(Const.PRICE_lowPrice, 0);
+			level1InfoAry.set(Const.PRICE_openPrice, 0);
+			level1InfoAry.set(Const.PRICE_highPrice, 0);
+			level1InfoAry.set(Const.PRICE_volume, 0);
+			level1InfoAry.set(Const.PRICE_value, 0);
+			level1InfoAry.set(Const.PRICE_turnoverRate, 0);
+			level1InfoAry.set(Const.PRICE_amplitude, 0);
+			level1InfoAry.set(Const.PRICE_negMarketValue, 0);
+			hash.hset(Const.RKEY_LEVEL1_, StrTool.toString(obj),
+					JSON.toJSONString(level1InfoAry));
+
+			JSONArray stockInfoAry = JSON.parseArray(hash.hget(
+					Const.RKEY_STOCK_INFO_, StrTool.toString(obj)));
+			stockInfoAry.set(Const.INFO_totalShares, 0);
+			hash.hset(Const.RKEY_STOCK_INFO_, StrTool.toString(obj),
+					JSON.toJSONString(stockInfoAry));
+		}
+		threadPool.shutdown();
+		while (true) {
+			if (threadPool.isTerminated()) {
+				System.out.println("处理每日昨收数据完成"
+						+ DateTool.DateToStr(new Date(), DateTool.TIME_FORMAT));
+				return true;
+			}
+		}
+	}
+
+	/**
+	 * tmp转为正式的
+	 */
+	public void tmp2formal() {
+		long a = System.currentTimeMillis();
+		IdentityHashMap<Double, String> stortChange = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortChangePct = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortAmplitude = new IdentityHashMap<Double, String>();
+		if (keys.exists(Const.RKEY_LEVEL1_SORT_change_tmp)) {
+			Set<String> changeTmpSet = sorset.zrange(
+					Const.RKEY_LEVEL1_SORT_change_tmp, 0, -1);
+			Iterator changeTmpIter = changeTmpSet.iterator();
+			while (changeTmpIter.hasNext()) {
+				com.alibaba.fastjson.JSONArray changeAry = JSON
+						.parseArray((String) changeTmpIter.next());
+				String change = StrTool.zero2decimal(changeAry.getString(2));
+				stortChange.put(Double.parseDouble(change),
+						JSON.toJSONString(changeAry));
+			}
+			if (stortChange != null && !stortChange.isEmpty()) {
+				sorset.zrem(Const.RKEY_LEVEL1_SORT_change);
+				sorset.zrem(Const.RKEY_LEVEL1_SORT_change_tmp);
+				sorset.zadd(Const.RKEY_LEVEL1_SORT_change, stortChange);
+			}
+			// RedisUtil.getJedisUtil().KEYS.rename(
+			// Const.RKEY_LEVEL1_SORT_change_tmp,
+			// Const.RKEY_LEVEL1_SORT_change);
+		}
+
+		if (keys.exists(Const.RKEY_LEVEL1_SORT_changePct_tmp)) {
+			Set<String> changePctTmpSet = sorset.zrange(
+					Const.RKEY_LEVEL1_SORT_changePct_tmp, 0, -1);
+			Iterator changePctTmpIter = changePctTmpSet.iterator();
+			while (changePctTmpIter.hasNext()) {
+				com.alibaba.fastjson.JSONArray changePctAry = JSON
+						.parseArray((String) changePctTmpIter.next());
+				String changePct = StrTool.zero2decimal(changePctAry
+						.getString(2));
+				stortChangePct.put(Double.parseDouble(changePct),
+						JSON.toJSONString(changePctAry));
+			}
+			if (stortChangePct != null && !stortChangePct.isEmpty()) {
+				sorset.zrem(Const.RKEY_LEVEL1_SORT_changePct);
+				sorset.zrem(Const.RKEY_LEVEL1_SORT_changePct_tmp);
+				sorset.zadd(Const.RKEY_LEVEL1_SORT_changePct, stortChangePct);
+			}
+		}
+
+		if (keys.exists(Const.RKEY_LEVEL1_SORT_swing_tmp)) {
+			Set<String> swingTmpSet = sorset.zrange(
+					Const.RKEY_LEVEL1_SORT_swing_tmp, 0, -1);
+			Iterator swingTmpIter = swingTmpSet.iterator();
+			while (swingTmpIter.hasNext()) {
+				com.alibaba.fastjson.JSONArray swingAry = JSON
+						.parseArray((String) swingTmpIter.next());
+				String swing = StrTool.zero2decimal(swingAry.getString(2));
+				stortAmplitude.put(Double.parseDouble(swing),
+						JSON.toJSONString(swingAry));
+			}
+			if (stortAmplitude != null && !stortAmplitude.isEmpty()) {
+				sorset.zrem(Const.RKEY_LEVEL1_SORT_swing);
+				sorset.zrem(Const.RKEY_LEVEL1_SORT_swing_tmp);
+				sorset.zadd(Const.RKEY_LEVEL1_SORT_swing, stortAmplitude);
+			}
+		}
+	}
+
+	/**
+	 * 获取某只股票的集合竞价数据
+	 * 
+	 * @param obj
+	 * @throws IOException
+	 */
+	public void getAuctionIntraByTL(Object obj) throws IOException {
+		IdentityHashMap<Double, String> stortChange = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortChangePct = new IdentityHashMap<Double, String>();
+		IdentityHashMap<Double, String> stortAmplitude = new IdentityHashMap<Double, String>();
+		String code = StrTool.toString(obj);
+		JSONArray level1InfoAry = JSON.parseArray(hash.hget(Const.RKEY_LEVEL1_,
+				code));
+		String tlcode = StockUtils.getTLStockCode(code);
+		CsvReader readerLevel1 = WmcloudUtil.url2csv(Const.AUCTIONINTRADAY
+				+ "?secID=" + tlcode);
+		Integer lastTime = null;
+		String lastPrice = null, side = null, virAucQty = null, leaveQty = null;
+		Double maxPrice = 0.0, minPrice = 0.0;
+		if (readerLevel1 != null) {
+			readerLevel1.readHeaders();
+			while (readerLevel1.readRecord()) {
+				String[] items = readerLevel1.getValues();
+				String time = items[2];// 09:24:42.000
+				String price = items[3];
+				String side_s = items[6];
+				String virAucQty_s = items[4];
+				String leaveQty_s = items[5];
+				if (time != null && !"".equals(time)) {
+					Integer intTime = DateTool.strDateToIntegerDate(time,
+							"HH:mm:ss.SS", "HHmmss");
+					if (lastTime != null && !"".equals(lastTime)) {
+						if (intTime > lastTime) {
+							lastTime = intTime;
+							lastPrice = price;
+							side = side_s;
+							virAucQty = virAucQty_s;
+							leaveQty = leaveQty_s;
+						}
+					} else {
+						lastTime = intTime;
+					}
+				}
+
+				Double dPrice = StrTool.toDouble(price);
+				if (maxPrice.intValue() != 0) {
+					if (dPrice > maxPrice) {
+						maxPrice = dPrice;
+					}
+				} else {
+					maxPrice = dPrice;
+				}
+
+				if (minPrice.intValue() != 0) {
+					if (dPrice < minPrice) {
+						minPrice = dPrice;
+					}
+				} else {
+					minPrice = dPrice;
+				}
+			}
+
+			if (lastPrice != null && StrTool.toDouble(lastPrice) != 0) {
+				BigDecimal prevClosePrice = level1InfoAry
+						.getBigDecimal(Const.PRICE_prevClosePrice);// 昨收
+				String change = new BigDecimal(lastPrice).subtract(
+						prevClosePrice).toString();// 变动
+				String changePct = "0";
+				if (prevClosePrice.doubleValue() == StrTool.toDouble(lastPrice)) {
+					changePct = "0";
+				} else if (prevClosePrice.doubleValue() != 0) {
+					changePct = new BigDecimal(change)
+							.divide(prevClosePrice, 4, BigDecimal.ROUND_HALF_UP)
+							.setScale(4, BigDecimal.ROUND_HALF_UP).toString();// 变动率
+				}
+
+				Double dAmplitude = new BigDecimal(Double.toString(maxPrice))
+						.subtract(new BigDecimal(Double.toString(minPrice)))
+						.doubleValue();
+
+				if (prevClosePrice.intValue() != 0) {
+					BigDecimal amplitudePct = new BigDecimal(dAmplitude)
+							.divide(prevClosePrice, 4, BigDecimal.ROUND_HALF_UP)
+							.setScale(4, BigDecimal.ROUND_HALF_UP);
+					level1InfoAry.set(Const.PRICE_amplitude, amplitudePct);
+					// 保存振幅排序
+					String[] sortAmplitudeItem = new String[] { code,
+							lastPrice, amplitudePct.toString() };
+					String amplitude = StrTool.zero2decimal(amplitudePct);
+					stortAmplitude.put(Double.parseDouble(amplitude),
+							JSON.toJSONString(sortAmplitudeItem));
+				}
+
+				level1InfoAry.set(Const.PRICE_lastPrice, lastPrice);
+				level1InfoAry.set(Const.PRICE_change, change);
+				level1InfoAry.set(Const.PRICE_changePct, changePct);
+				level1InfoAry.set(Const.PRICE_askBook_volume1, virAucQty);
+				level1InfoAry.set(Const.PRICE_askBook_price1, lastPrice);
+				level1InfoAry.set(Const.PRICE_bidBook_volume1, virAucQty);
+				level1InfoAry.set(Const.PRICE_bidBook_price1, lastPrice);
+
+				hash.hset(Const.RKEY_LEVEL1_, code,
+						JSON.toJSONString(level1InfoAry));
+
+				if (flag == 0
+						&& DateTool.DateToStr(new Date(), "yyyyMMdd").equals(
+								flagDate)) {
+					JSONArray stockInfoAry = JSON.parseArray(hash.hget(
+							Const.RKEY_STOCK_INFO_, code));
+					if (stockInfoAry.getIntValue(Const.INFO_isSuspend) != 0) {
+						stockInfoAry.set(Const.INFO_isSuspend, 0);
+						hash.hset(Const.RKEY_STOCK_INFO_, code,
+								JSON.toJSONString(stockInfoAry));
+					}
+				} else if (!DateTool.DateToStr(new Date(), "yyyyMMdd").equals(
+						flagDate)) {
+					flag = 0;
+					JSONArray stockInfoAry = JSON.parseArray(hash.hget(
+							Const.RKEY_STOCK_INFO_, code));
+					if (stockInfoAry.getIntValue(Const.INFO_isSuspend) != 0) {
+						stockInfoAry.set(Const.INFO_isSuspend, 0);
+						hash.hset(Const.RKEY_STOCK_INFO_, code,
+								JSON.toJSONString(stockInfoAry));
+					}
+				}
+
+				// 保存涨跌幅额排序
+				String[] sortChangeItem = new String[] { code, lastPrice,
+						change };
+				change = StrTool.zero2decimal(change);
+				stortChange.put(Double.parseDouble(change),
+						JSON.toJSONString(sortChangeItem));
+
+				// 保存涨跌幅排序
+				String[] sortChangePctItem = new String[] { code, lastPrice,
+						changePct };
+				changePct = StrTool.zero2decimal(changePct);
+				stortChangePct.put(Double.parseDouble(changePct),
+						JSON.toJSONString(sortChangePctItem));
+			}else{
+				level1InfoAry.set(Const.PRICE_change, 0);
+				level1InfoAry.set(Const.PRICE_changePct, 0);
+				hash.hset(Const.RKEY_LEVEL1_, code,
+						JSON.toJSONString(level1InfoAry));
+			}
+		}
+		if (stortChange != null && !stortChange.isEmpty()) {
+			sorset.zadd(Const.RKEY_LEVEL1_SORT_change_tmp, stortChange);
+		}
+		if (stortChangePct != null && !stortChangePct.isEmpty()) {
+			sorset.zadd(Const.RKEY_LEVEL1_SORT_changePct_tmp, stortChangePct);
+		}
+		if (stortAmplitude != null && !stortAmplitude.isEmpty()) {
+			sorset.zadd(Const.RKEY_LEVEL1_SORT_swing_tmp, stortAmplitude);
+		}
+	}
+
+	/**
+	 * 获取五档明细数据
+	 * 
+	 * @return void
+	 */
+	public void getLevel1Detail(boolean isInit) {
+		long a = System.currentTimeMillis();
+		ExecutorService threadPool = Executors.newFixedThreadPool(10);
+		for (Object obj : hash.hgetAll(Const.RKEY_STOCK_INFO_).keySet()) {
+			threadPool.submit(new getLevel1DetailDataThread(obj,isInit));
+		}
+		threadPool.shutdown();
+//		while (true) {
+//			if (threadPool.isTerminated()) {
+//				System.out.println("五档数据执行完毕，用时="
+//						+ (System.currentTimeMillis() - a));
+//				break;
+//			}
+//		}
+	}
+
+	public void getLevel1DetailData(Object obj,boolean isInit) {
+		try {
+			Integer minint = DateTool.strDateToIntegerDate(DateTool.DateToStr(new Date(), "HH:mm"), "HH:mm", "HHmm") ;
+			String startTime = "";
+			String endTime = "";
+			if(isInit){
+				if(minint > 1500){
+					startTime = "13:30";
+					endTime = "15:00";
+				}else if(minint < 1100 && minint >930){
+					startTime = "09:30";
+					endTime = DateTool.DateToStr(new Date(), "HH:mm");
+				}
+			}else{
+				startTime = DateTool.DateToStr(new Date(), "HH:mm");
+				endTime = DateTool.DateToStr(DateTool.minuteChange(new Date(), 1), "HH:mm");
+			}
+			String tlCode = StockUtils.getTLStockCode(StrTool.toString(obj));
+			List data = new ArrayList();
+			CsvReader readerLevel1 = WmcloudUtil.url2csv(Const.LEVEL1DETAIL
+					+ "?field=dataTime,volume,lastPrice&securityID=" + tlCode
+					+ "&startTime=" + startTime + "&endTime=" + endTime);
+			if (readerLevel1 != null) {
+				readerLevel1.readHeaders();
+				String lastVolume = "";
+				while (readerLevel1.readRecord()) {
+					String[] items = readerLevel1.getValues();
+					String time = items[1];
+					String price = items[5];
+					String volume = items[4];
+					if (lastVolume == "") {
+						lastVolume = volume;
+					} else {
+						if (!lastVolume.equals(volume)) {
+							List<String> list = new ArrayList<String>();
+							list.add(time);
+							list.add(price);
+
+							Integer volumeDif = StrTool.toInt(volume)
+									- StrTool.toInt(lastVolume);
+							if (volumeDif > 0) {
+								list.add(StrTool.toString(volumeDif / 100));
+							} else {
+								list.add(StrTool.toString(volumeDif / 100)
+										.substring(1));
+							}
+							lastVolume = volume;
+							data.add(list);
+						} else {
+							continue;
+						}
+					}
+				}
+				// 数据倒叙
+				if (data != null && data.size() > 0) {
+					// Collections.reverse(data);
+
+					JSONArray oldData = JSONArray.parseArray(hash.hget(
+							Const.RKEY_LEVEL1_DETAIL_, StrTool.toString(obj)));
+
+					List detailData = new ArrayList();
+
+					// 最新的五档数据添加进来
+					if (oldData != null) {
+						for (Object obje : data) {
+							detailData.add(obje);
+						}
+						// JSONArray 转成 List
+						for (Object object : oldData) {
+							detailData.add(object);
+						}
+
+						// 去除重复的数据
+						List<Object> newData = new ArrayList(new HashSet(
+								detailData));
+						// Collections.sort(newData);
+						Collections.sort(newData, new Comparator<Object>() {
+							public int compare(Object arg0, Object arg1) {
+								return StrTool.toString(arg0).compareTo(
+										StrTool.toString(arg1));
+							}
+						});
+						Collections.reverse(newData);
+						hash.hset(Const.RKEY_LEVEL1_DETAIL_,
+								StrTool.toString(obj),
+								JSON.toJSONString(newData));
+					} else {
+						Collections.reverse(data);
+						hash.hset(Const.RKEY_LEVEL1_DETAIL_,
+								StrTool.toString(obj), JSON.toJSONString(data));
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String args[]) throws IOException {
+//		RedisUtil.getJedisUtil().KEYS.del(Const.RKEY_LEVEL1_DETAIL_);
+//		self.getLevel1Detail(true);
+//		self.getLevel1DetailData("sh600520",true);
+		// JSONArray oldData =
+//		JSONArray ary = JSONArray.parseArray(RedisUtil.getJedisUtil().HASH.hget(Const.RKEY_LEVEL1_DETAIL_,StrTool.toString("sz300358")));
+//		System.out.println(ary.size());
+//		for (Object object : ary) {
+//			System.out.println(object);
+//		}
+		 self.getAuctionIntraByTL("sz300571");
+		// if("sh601789".equals(code)){
+		// System.out.println("code");
+		// }
+//		 self.getAuctionIntra();
+		// System.out.println(self.setLastPrice2PrevClosePrice());
+	}
+}
+
+class getAuctionIntraThread implements Runnable {
+	private Object obj;
+	private Level1Manager self;
+
+	public getAuctionIntraThread(Object obj) {
+		this.obj = obj;
+		this.self = Level1Manager.getInstance();
+	}
+
+	@Override
+	public void run() {
+		try {
+			self.getAuctionIntraByTL(obj);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+class getLevel1DetailDataThread implements Runnable {
+	private Object obj;
+	private Level1Manager self;
+	private boolean isInit;
+
+	public getLevel1DetailDataThread(Object obj,boolean isInit) {
+		this.obj = obj;
+		this.self = Level1Manager.getInstance();
+		this.isInit = isInit;
+	}
+
+	@Override
+	public void run() {
+		try {
+			self.getLevel1DetailData(obj,isInit);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

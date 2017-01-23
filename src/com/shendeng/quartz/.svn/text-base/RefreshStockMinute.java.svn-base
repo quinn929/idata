@@ -1,0 +1,67 @@
+package com.shendeng.quartz;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+
+import com.shendeng.cluster.ClusterUtil;
+import com.shendeng.datamanager.IndustryManager;
+import com.shendeng.datamanager.KlineManager;
+import com.shendeng.datamanager.StockInfoManager;
+import com.shendeng.utils.Const;
+import com.shendeng.utils.DateTool;
+import com.shendeng.utils.RedisUtil;
+
+/**
+ * 增量添加分时定时任务
+ * 
+ * @author qy
+ * @date 2016年5月6日
+ */
+public class RefreshStockMinute implements Job {
+
+	@Override
+	public void execute(JobExecutionContext arg0) {
+		ExecutorService threadPool = Executors.newFixedThreadPool(10);
+		try {
+			if (Const.isTradingDay && Const.isTradingTime) {
+				// 增量添加当前时间的分时
+				if ((new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 09:30:00")) > 0) && (new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 15:10:00")) < 0)) {
+					threadPool.submit(new addStockNowMinute());
+				}
+			}
+		} catch (Exception e) {
+			// 失败再来
+			threadPool.submit(new addStockNowMinute());
+			System.err.println("增量添加分时定时任务执行失败" + DateTool.DateToStr(new Date(), DateTool.TIME_FORMAT));
+			e.printStackTrace();
+		} finally {
+			threadPool.shutdown();
+		}
+	}
+}
+
+/**
+ * 增量添加当前时间的分时
+ * 
+ * @author qy
+ * @date 2016年6月26日
+ */
+class addStockNowMinute implements Runnable {
+	@Override
+	public void run() {
+		try {
+			KlineManager.getInstance().addStockNowMinute();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}

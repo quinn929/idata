@@ -1,0 +1,833 @@
+package com.shendeng.utils;
+
+public class Const {
+
+	/**
+	 * namespaceName
+	 */
+	public static final String NAMESPCE_NAME = "/quotes_main";
+	/**
+	 * 代理类所在的包名
+	 */
+	public static final String PROXY_PACKAGE = "com.shendeng58.quotes.wsprocess";
+	/**
+	 * redis key 行情快照
+	 */
+	public static final String RKEY_LEVEL1_ = "_level1:info";
+	/**
+	 * redis key 行情快照 按涨跌额排序
+	 */
+	public static final String RKEY_LEVEL1_SORT_change = "_level1:sort_change";
+	/**
+	 * redis key 行情快照 按涨跌幅排序
+	 */
+	public static final String RKEY_LEVEL1_SORT_changePct = "_level1:sort_changePct";
+	/**
+	 * redis key 行情快照 按涨跌额排序 临时数据
+	 */
+	public static final String RKEY_LEVEL1_SORT_change_tmp = "_level1:sort_change_tmp";
+	/**
+	 * redis key 行情快照 按涨跌幅排序 临时数据
+	 */
+	public static final String RKEY_LEVEL1_SORT_changePct_tmp = "_level1:sort_changePct_tmp";
+	/**
+	 * redis key 行情快照 按振幅排序
+	 */
+	public static final String RKEY_LEVEL1_SORT_swing = "_level1:sort_swing";
+	
+	public static final String RKEY_LEVEL1_SORT_swing_tmp = "_level1:sort_swing_tmp";
+	/**
+	 * 成交量榜
+	 */
+	public static final String RKEY_LEVEL1_SORT_volumnup = "_level1:sort_volumnup";
+	/**
+	 * 成交额榜
+	 */
+	public static final String RKEY_LEVEL1_SORT_volumnpriceup = "_level1:sort_volumnpriceup";
+	/**
+	 * 换手率榜
+	 */
+	public static final String RKEY_LEVEL1_SORT_turnoverrateup = "_level1:sort_turnoverrateup";
+	/**
+	 * redis key 分时
+	 */
+	public static final String RKEY_MINS_ = "_mins:";
+	/**
+	 * redis key 日K
+	 */
+	public static final String RKEY_K_D_ = "_K_D:";
+	/**
+	 * redis key 周K
+	 */
+	public static final String RKEY_K_W_ = "_K_W:";
+	/**
+	 * redis key 月K
+	 */
+	public static final String RKEY_K_M_ = "_K_M:";
+	/**
+	 * 5挡明细数据
+	 */
+	public static final String RKEY_LEVEL1_DETAIL_ = "_level1:level1detail";
+	/**
+	 * redis key 个股基本信息
+	 */
+	public static final String RKEY_STOCK_INFO_ = "_stock:info";
+	/**
+	 * redis key 地域分类
+	 */
+	public static final String RKEY_STOCK_SECTYPEREGION_ = "_stock:sectyperegion";
+	/**
+	 * redis key 合并利润表(最近)
+	 */
+	public static final String PKEY_FDMTISLATELY = "_stock:fdmtislately";
+	/**
+	 * redis key 行业
+	 */
+	public static final String RKEY_INDUSTRY_ = "_industry:";
+	/**
+	 * redis key 行业平均价
+	 */
+	public static final String RKEY_INDUSTRY_SORT_tradeRate = "_industry:sort_tradeRate";
+	/**
+	 * redis key 资产净流入排行
+	 */
+	public static final String RKEY_INDUSTRY_SORT_sumOrder = "_industry:sort_sumOrder";
+	/**
+	 * 股票数据快照cvs接口
+	 */
+	public static final String UW_LEVEL1_CSV = "https://api.wmcloud.com:443/data/v1/api/market/getTickRTSnapshot.csv";
+	/**
+	 * 股票数据快照json接口
+	 */
+	public static final String UW_LEVEL1_JSON = "https://api.wmcloud.com:443/data/v1/api/market/getTickRTSnapshot.json";
+	/**
+	 * 股票基本信息
+	 */
+	public static final String EQU = "https://api.wmcloud.com:443/data/v1/api/equity/getEqu.csv?equTypeCD=A";
+	/**
+	 * 合并利润表(最近)
+	 */
+	public static final String FDMTISLATELY = "https://api.wmcloud.com/data/v1/api/fundamental/getFdmtISLately.csv";
+	/**
+	 * 沪深股票今日停复牌
+	 */
+	public static final String SECTIPS  = "https://api.wmcloud.com:443/data/v1/api/market/getSecTips.csv?field=secID&tipsTypeCD=H";
+	/**
+	 * 分时图
+	 */
+	public static final String BARRTINTRADAY = "https://api.wmcloud.com:443/data/v1/api/market/getBarRTIntraDay.csv";
+	/**
+	 * 日K
+	 */
+	public static final String MKTEQUD = "https://api.wmcloud.com:443/data/v1/api/market/getMktEqud.csv";
+	/**
+	 * 周K
+	 */
+	public static final String MKTEQUWADJ = "https://api.wmcloud.com:443/data/v1/api/market/getMktEquw.csv";
+	/**
+	 * 月K
+	 */
+	public static final String MKTEQUM = "https://api.wmcloud.com:443/data/v1/api/market/getMktEqum.csv";
+	/**
+	 * 指数日K
+	 */
+	public static final String MKTIDXD = "https://api.wmcloud.com:443/data/v1/api/market/getMktIdxd.csv";
+	/**
+	 * 股票行业分类
+	 */
+	public static final String EQUINDUSTRY = "https://api.wmcloud.com/data/v1/api/equity/getEquIndustry.csv?industryVersionCD=010303&intoDate=";
+	/**
+	 * 证券板块成分
+	 */
+	public static final String SECTYPEREL = "https://api.wmcloud.com/data/v1/api/master/getSecTypeRel.csv";
+	/**
+	 * 地域分类
+	 */
+	public static final String SECTYPEREGION = "https://api.wmcloud.com:443/data/v1/api/master/getSecTypeRegion.csv";
+	/**
+	 * 键盘精灵 
+	 */
+	public static final String EQUINFO = "https://api.wmcloud.com:443/data/v1/api/master/getEquInfo.csv";
+	/**
+	 * 交易所交易日历
+	 */
+	public static final String TRADECAL  = "https://api.wmcloud.com:443/data/v1/api/master/getTradeCal.csv?field=exchangeCD,isOpen&exchangeCD=XSHG,XSHE";
+	/**
+	 * 所有股票某一分钟的分时
+	 */
+	public static final String ONEMINUTE = "https://api.wmcloud.com:443/data/v1/api/market/getBarRTIntraDayOneMinute.csv";
+	/**
+	 * 获取一只股票，指数，债券，基金在当日内时间段Level1信息(五档数据)
+	 */
+	public static final String LEVEL1DETAIL = "https://api.wmcloud.com:443/data/v1/api/market/getTickRTIntraDay.csv";
+	/**
+	 * 获取一只股票,指数,债券,基金在当日内集合竞价信息
+	 */
+	public static final String AUCTIONINTRADAY = "https://api.wmcloud.com:443/data/v1/api/market/getVirtualAuctionIntraDay.csv";
+	/**
+	 * 是否交易日
+	 */
+	public static boolean isTradingDay = true;
+	/**
+	 * 是否交易时间
+	 */
+	public static boolean isTradingTime = true;
+	/**
+	 * 降序排序
+	 */
+	public static int SORT_DESC = 0;
+	/**
+	 * 升序排序
+	 */
+	public static int SORT_ASC = 1;
+	/**
+	 * 交易所代码，如’XSHE'.和Ticker一起组成了证券唯一的代码。
+	 */
+	public static int PRICE_exchangeCD = 0;
+	/**
+	 * 证券6位代码
+	 */
+	public static int PRICE_ticker = 1;
+	/**
+	 * 交易所时间戳
+	 */
+	public static int PRICE_timestamp = 2;
+	/**
+	 * 集合竞价成交数量
+	 */
+	public static int PRICE_AggQty = 3;
+	/**
+	 * 振幅
+	 */
+	public static int PRICE_amplitude = 4;
+	/**
+	 * 变动 (最新-前收)
+	 */
+	public static int PRICE_change = 5;
+	/**
+	 * 变动率(变动/前收)
+	 */
+	public static int PRICE_changePct = 6;
+	/**
+	 * 货币代码（CNY）
+	 */
+	public static int PRICE_currencyCD = 7;
+	/**
+	 * 交易日期（yyyy-MM-dd）
+	 */
+	public static int PRICE_dataDate = 8;
+	/**
+	 * 交易时间'HH:mm:ss'
+	 */
+	public static int PRICE_dataTime = 9;
+	/**
+	 * 成交笔数（1. 上海的股票，债券，基金该字段为空; 2. 指数该字段为空）
+	 */
+	public static int PRICE_deal = 10;
+	/**
+	 * 超大单成交金额
+	 */
+	public static int PRICE_extraLargeOrderValue = 11;
+	/**
+	 * 最高价格
+	 */
+	public static int PRICE_highPrice = 12;
+	/**
+	 * 参考平衡价
+	 */
+	public static int PRICE_IEP = 13;
+	/**
+	 * 大单成交金额
+	 */
+	public static int PRICE_largeOrderValue = 14;
+	/**
+	 * 最新价格
+	 */
+	public static int PRICE_lastPrice = 15;
+	/**
+	 * DataYes本地接收时间戳（Unix时间）
+	 */
+	public static int PRICE_localTimestamp = 16;
+	/**
+	 * 最低价格
+	 */
+	public static int PRICE_lowPrice = 17;
+	/**
+	 * 中单成交金额
+	 */
+	public static int PRICE_mediumOrderValue = 18;
+	/**
+	 * 流通市值
+	 */
+	public static int PRICE_negMarketValue = 19;
+	/**
+	 * 按盘价/收盘价（港股独有）
+	 */
+	public static int PRICE_nominalPrice = 20;
+	/**
+	 * 今日开盘价
+	 */
+	public static int PRICE_openPrice = 21;
+	/**
+	 * 成交单类型，如s：小单，m：中单，l：大单，xl：超大单
+	 */
+	public static int PRICE_orderType = 22;
+	/**
+	 * 昨收盘价格
+	 */
+	public static int PRICE_prevClosePrice = 23;
+	/**
+	 * 证劵简称
+	 */
+	public static int PRICE_shortNM = 24;
+	/**
+	 * 小单成交金额
+	 */
+	public static int PRICE_smallOrderValue = 25;
+	/**
+	 * 静态市盈率
+	 */
+	public static int PRICE_staticPE = 26;
+	/**
+	 * 是否停牌(1表示停牌)
+	 */
+	public static int PRICE_suspension = 27;
+	/**
+	 * 本次成交单总金额
+	 */
+	public static int PRICE_totalOrderValue = 28;
+	/**
+	 * 标识（港股独有）
+	 */
+	public static int PRICE_tradSessionID = 29;
+	/**
+	 * 状态（港股独有）
+	 */
+	public static int PRICE_tradSessionStatus = 30;
+	/**
+	 * 子标识（港股独有）
+	 */
+	public static int PRICE_tradSessionSubID = 31;
+	/**
+	 * 交易状态（港股独有）
+	 */
+	public static int PRICE_tradStatus = 32;
+	/**
+	 * 交易类型（港股独有）
+	 */
+	public static int PRICE_tradType = 33;
+	/**
+	 * 换手率
+	 */
+	public static int PRICE_turnoverRate = 34;
+	/**
+	 * UTC 时间偏移
+	 */
+	public static int PRICE_utcOffset = 35;
+	/**
+	 * 成交金额
+	 */
+	public static int PRICE_value = 36;
+	/**
+	 * 成交数量(深圳指数和所有股票的单位是股，上海指数的单位是手)
+	 */
+	public static int PRICE_volume = 37;
+	/**
+	 * 加权平均价（港股独有）
+	 */
+	public static int PRICE_VWAP = 38;
+	/**
+	 * 息率（港股独有）
+	 */
+	public static int PRICE_Yield = 39;
+	/**
+	 * 买1成交金额
+	 */
+	public static int PRICE_bidBook_price1 = 40;
+	/**
+	 * 买1成交数量
+	 */
+	public static int PRICE_bidBook_volume1 = 41;
+	/**
+	 * 买2成交金额
+	 */
+	public static int PRICE_bidBook_price2 = 42;
+	/**
+	 * 买2成交数量
+	 */
+	public static int PRICE_bidBook_volume2 = 43;
+	/**
+	 * 买3成交金额
+	 */
+	public static int PRICE_bidBook_price3 = 44;
+	/**
+	 * 买3成交数量
+	 */
+	public static int PRICE_bidBook_volume3 = 45;
+	/**
+	 * 买4成交金额
+	 */
+	public static int PRICE_bidBook_price4 = 46;
+	/**
+	 * 买4成交数量
+	 */
+	public static int PRICE_bidBook_volume4 = 47;
+	/**
+	 * 买5成交金额
+	 */
+	public static int PRICE_bidBook_price5 = 48;
+	/**
+	 * 买5成交数量
+	 */
+	public static int PRICE_bidBook_volume5 = 49;
+	/**
+	 * 卖1成交金额
+	 */
+	public static int PRICE_askBook_price1 = 50;
+	/**
+	 * 卖1成交数量
+	 */
+	public static int PRICE_askBook_volume1 = 51;
+	/**
+	 * 卖2成交金额
+	 */
+	public static int PRICE_askBook_price2 = 52;
+	/**
+	 * 卖2成交数量
+	 */
+	public static int PRICE_askBook_volume2 = 53;
+	/**
+	 * 卖3成交金额
+	 */
+	public static int PRICE_askBook_price3 = 54;
+	/**
+	 * 卖3成交数量
+	 */
+	public static int PRICE_askBook_volume3 = 55;
+	/**
+	 * 卖4成交金额
+	 */
+	public static int PRICE_askBook_price4 = 56;
+	/**
+	 * 卖4成交数量
+	 */
+	public static int PRICE_askBook_volume4 = 57;
+	/**
+	 * 卖5成交金额
+	 */
+	public static int PRICE_askBook_price5 = 58;
+	/**
+	 * 卖5成交数量
+	 */
+	public static int PRICE_askBook_volume5 = 59;
+	/**
+	 * 证券类型,E是股票，F是基金，B是债券，IDX是指数
+	 */
+	public static int PRICE_assetClass = 60;
+	/**
+	 * 行业ID
+	 */
+	public static int PRICE_industryID1 = 61;
+	/**
+	 * 行业名称
+	 */
+	public static int PRICE_industryName1 = 62;
+
+	/**
+	 * 证券ID
+	 */
+	public static int INFO_secID = 0;
+	/**
+	 * 交易代码
+	 */
+	public static int INFO_ticker = 1;
+	/**
+	 * 交易市场
+	 */
+	public static int INFO_exchangeCD = 2;
+	/**
+	 * 上市板块编码
+	 */
+	public static int INFO_ListSectorCD = 3;
+	/**
+	 * 上市板块
+	 */
+	public static int INFO_ListSector = 4;
+	/**
+	 * 交易货币
+	 */
+	public static int INFO_transCurrCD = 5;
+	/**
+	 * 证券简称
+	 */
+	public static int INFO_secShortName = 6;
+	/**
+	 * 证券全称
+	 */
+	public static int INFO_secFullName = 7;
+	/**
+	 * 上市状态
+	 */
+	public static int INFO_listStatusCD = 8;
+	/**
+	 * 上市日期
+	 */
+	public static int INFO_listDate = 9;
+	/**
+	 * 摘牌日期
+	 */
+	public static int INFO_delistDate = 10;
+	/**
+	 * 股票分类编码
+	 */
+	public static int INFO_equTypeCD = 11;
+	/**
+	 * 股票类别
+	 */
+	public static int INFO_equType = 12;
+	/**
+	 * 交易市场所属地区
+	 */
+	public static int INFO_exCountryCD = 13;
+	/**
+	 * 机构内部ID
+	 */
+	public static int INFO_partyID = 14;
+	/**
+	 * 总股本(最新)
+	 */
+	public static int INFO_totalShares = 15;
+	/**
+	 * 公司无限售流通股份合计(最新)
+	 */
+	public static int INFO_nonrestFloatShares = 16;
+	/**
+	 * 无限售流通股本(最新)。如果为A股，该列为最新无限售流通A股股本数量；如果为B股，该列为最新流通B股股本数量
+	 */
+	public static int INFO_nonrestfloatA = 17;
+	/**
+	 * 办公地址
+	 */
+	public static int INFO_officeAddr = 18;
+	/**
+	 * 主营业务范围
+	 */
+	public static int INFO_primeOperating = 19;
+	/**
+	 * 财务报告日期
+	 */
+	public static int INFO_endDate = 20;
+	/**
+	 * 所有者权益合计
+	 */
+	public static int INFO_TShEquity = 21;
+	/**
+	 * 行业编码
+	 */
+	public static int INFO_industryID1 = 22;
+	/**
+	 * 行业名称
+	 */
+	public static int INFO_industryName1 = 23;
+	/**
+	 * 是否停牌
+	 */
+	public static int INFO_isSuspend = 24;
+	/**
+	 * 证券类型,E是股票，F是基金，B是债券，IDX是指数
+	 */
+	public static int INFO_assetClass = 25;
+	/**
+	 * 证券内部ID
+	 */
+	public static int FdmtISLately_secID = 0;
+	/**
+	 * 截止日期
+	 */
+	public static int FdmtISLately_endDate = 1;
+	/**
+	 * 发布日期
+	 */
+	public static int FdmtISLately_publishDate = 2;
+	/**
+	 * 报表截止日期
+	 */
+	public static int FdmtISLately_endDateRep = 3;
+	/**
+	 * 机构内部ID
+	 */
+	public static int FdmtISLately_partyID = 4;
+	/**
+	 * 股票代码
+	 */
+	public static int FdmtISLately_ticker = 5;
+	/**
+	 * 证券简称
+	 */
+	public static int FdmtISLately_secShortName = 6;
+	/**
+	 * 交易市场代码
+	 */
+	public static int FdmtISLately_exchangeCD = 7;
+	/**
+	 * 实际披露时间
+	 */
+	public static int FdmtISLately_actPubtime = 8;
+	/**
+	 * 合并标志
+	 */
+	public static int FdmtISLately_mergedFlag = 9;
+	/**
+	 * 报告类型
+	 */
+	public static int FdmtISLately_reportType = 10;
+	/**
+	 * 会计期间
+	 */
+	public static int FdmtISLately_fiscalPeriod = 11;
+	/**
+	 * 会计准则
+	 */
+	public static int FdmtISLately_accoutingStandards = 12;
+	/**
+	 * 货币代码
+	 */
+	public static int FdmtISLately_currencyCD = 13;
+	/**
+	 * 营业总收入
+	 */
+	public static int FdmtISLately_tRevenue = 14;
+	/**
+	 * 营业收入
+	 */
+	public static int FdmtISLately_revenue = 15;
+	/**
+	 * 利息收入
+	 */
+	public static int FdmtISLately_intIncome = 16;
+	/**
+	 * 利息支出
+	 */
+	public static int FdmtISLately_intExp = 17;
+	/**
+	 * 已赚保费
+	 */
+	public static int FdmtISLately_premEarned = 18;
+	/**
+	 * 手续费及佣金收入
+	 */
+	public static int FdmtISLately_commisIncome = 19;
+	/**
+	 * 手续费及佣金支出
+	 */
+	public static int FdmtISLately_commisExp = 20;
+	/**
+	 * 营业总成本
+	 */
+	public static int FdmtISLately_TCogs = 21;
+	/**
+	 * 营业成本
+	 */
+	public static int FdmtISLately_COGS = 22;
+	/**
+	 * 退保金
+	 */
+	public static int FdmtISLately_premRefund = 23;
+	/**
+	 * 赔付支出净额
+	 */
+	public static int FdmtISLately_NCompensPayout = 24;
+	/**
+	 * 提取保险合同准备金净额
+	 */
+	public static int FdmtISLately_reserInsurContr = 25;
+	/**
+	 * 保单红利支出
+	 */
+	public static int FdmtISLately_policyDivPayt = 26;
+	/**
+	 * 分保费用
+	 */
+	public static int FdmtISLately_reinsurExp = 27;
+	/**
+	 * 营业税金及附加
+	 */
+	public static int FdmtISLately_bizTaxSurchg = 28;
+	/**
+	 * 销售费用
+	 */
+	public static int FdmtISLately_sellExp = 29;
+	/**
+	 * 管理费用
+	 */
+	public static int FdmtISLately_adminExp = 30;
+	/**
+	 * 财务费用
+	 */
+	public static int FdmtISLately_finanExp = 31;
+	/**
+	 * 资产减值损失
+	 */
+	public static int FdmtISLately_assetsImpairLoss = 32;
+	/**
+	 * 公允价值变动收益
+	 */
+	public static int FdmtISLately_fValueChgGain = 33;
+	/**
+	 * 投资收益
+	 */
+	public static int FdmtISLately_investIncome = 34;
+	/**
+	 * 其中:对联营企业和合营企业的投资收益
+	 */
+	public static int FdmtISLately_AJInvestIncome = 35;
+	/**
+	 * 汇兑收益
+	 */
+	public static int FdmtISLately_forexGain = 36;
+	/**
+	 * 营业利润
+	 */
+	public static int FdmtISLately_operateProfit = 37;
+	/**
+	 * 营业外收入
+	 */
+	public static int FdmtISLately_NoperateIncome = 38;
+	/**
+	 * 营业外支出
+	 */
+	public static int FdmtISLately_NoperateExp = 39;
+	/**
+	 * 非流动资产处置损失
+	 */
+	public static int FdmtISLately_NCADisploss = 40;
+	/**
+	 * 利润总额
+	 */
+	public static int FdmtISLately_TProfit = 41;
+	/**
+	 * 所得税费用
+	 */
+	public static int FdmtISLately_incomeTax = 42;
+	/**
+	 * 净利润
+	 */
+	public static int FdmtISLately_NIncome = 43;
+	/**
+	 * 归属于母公司所有者的净利润
+	 */
+	public static int FdmtISLately_NIncomeAttrP = 44;
+	/**
+	 * 少数股东损益
+	 */
+	public static int FdmtISLately_minorityGain = 45;
+	/**
+	 * 基本每股收益
+	 */
+	public static int FdmtISLately_basicEPS = 46;
+	/**
+	 * 稀释每股收益
+	 */
+	public static int FdmtISLately_dilutedEPS = 47;
+	/**
+	 * 其他综合收益
+	 */
+	public static int FdmtISLately_othComprIncome = 48;
+	/**
+	 * 综合收益总额
+	 */
+	public static int FdmtISLately_TComprIncome = 49;
+	/**
+	 * 归属于母公司所有者的综合收益总额
+	 */
+	public static int FdmtISLately_comprIncAttrP = 50;
+	/**
+	 * 归属于少数股东的综合收益总额
+	 */
+	public static int FdmtISLately_comprIncAttrMS = 51;
+	
+	/**
+	 * 股票简码
+	 */
+	public static int Kline_ticker = 0;
+	/**
+	 * 收盘价
+	 */
+	public static int Kline_closePrice = 1;
+	/**
+	 * 开盘价
+	 */
+	public static int Kline_openPrice = 2;
+	/**
+	 * 最高价
+	 */
+	public static int Kline_highestPrice = 3;
+	/**
+	 * 最低价
+	 */
+	public static int Kline_lowestPrice = 4;
+	/**
+	 * 成交量
+	 */
+	public static int Kline_turnoverVol = 5;
+	/**
+	 * 成交金额
+	 */
+	public static int Kline_turnoverValue = 6;
+	/**
+	 * 交易日期
+	 */
+	public static int Kline_tradeDate = 7;
+	/**
+	 * 昨日收盘价
+	 */
+	public static int Kline_preClosePrice = 8;
+	/**
+	 * 涨幅
+	 */
+	public static int Kline_chgPct = 9;
+	/**
+	 * 指数代码
+	 */
+	public static int IndexKline_ticker = 0;
+	/**
+	 * 指数今开盘价
+	 */
+	public static int IndexKline_openIndex = 1;
+	/**
+	 * 指数今收盘价
+	 */
+	public static int IndexKline_closeIndex = 2;
+	/**
+	 * 指数最高价
+	 */
+	public static int IndexKline_highestIndex = 3;
+	/**
+	 * 指数最低价
+	 */
+	public static int IndexKline_lowestIndex = 4;
+	/**
+	 * 指数成交量
+	 */
+	public static int IndexKline_turnoverVol = 5;
+	/**
+	 * 指数成交金额
+	 */
+	public static int IndexKline_turnoverValue = 6;
+	/**
+	 * 交易日
+	 */
+	public static int IndexKline_tradeDate = 7;
+	/**
+	 * 指数昨收盘价
+	 */
+	public static int IndexKline_preCloseIndex = 8;
+	/**
+	 * 涨跌
+	 */
+	public static int IndexKline_CHG = 9;
+	/**
+	 * 涨跌幅
+	 */
+	public static int IndexKline_CHGPct = 10;
+}

@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/idata/!svn/ver/82/idata/src/com/shendeng/datamanager
+END
+Cache.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/idata/!svn/ver/78/idata/src/com/shendeng/datamanager/Cache.java
+END
+Level1ManagerV2.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/idata/!svn/ver/76/idata/src/com/shendeng/datamanager/Level1ManagerV2.java
+END
+StockInfoManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/idata/!svn/ver/69/idata/src/com/shendeng/datamanager/StockInfoManager.java
+END
+ProcessIndustryManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/idata/!svn/ver/69/idata/src/com/shendeng/datamanager/ProcessIndustryManager.java
+END
+Level1Manager.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/idata/!svn/ver/74/idata/src/com/shendeng/datamanager/Level1Manager.java
+END
+ProcessKlineManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/datamanager/ProcessKlineManager.java
+END
+IndustryManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/datamanager/IndustryManager.java
+END
+ProcessStockInfoManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/datamanager/ProcessStockInfoManager.java
+END
+KlineManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/idata/!svn/ver/82/idata/src/com/shendeng/datamanager/KlineManager.java
+END
+ProcessLevel1Manager.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/idata/!svn/ver/74/idata/src/com/shendeng/datamanager/ProcessLevel1Manager.java
+END

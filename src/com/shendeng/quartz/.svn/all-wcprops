@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/quartz
+END
+RefreshStockMin.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/quartz/RefreshStockMin.java
+END
+RefreshLevel1PrevClosePrice.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/idata/!svn/ver/69/idata/src/com/shendeng/quartz/RefreshLevel1PrevClosePrice.java
+END
+QuartzManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/quartz/QuartzManager.java
+END
+RefreshLevel1.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/quartz/RefreshLevel1.java
+END
+RefreshAuctionIntra.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/quartz/RefreshAuctionIntra.java
+END
+RefreshStockMinute.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/quartz/RefreshStockMinute.java
+END
+RefreshStockOther.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/quartz/RefreshStockOther.java
+END
+RefreshStockWeekAndMonth.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/quartz/RefreshStockWeekAndMonth.java
+END
+RefreshStockState.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/quartz/RefreshStockState.java
+END
+RefreshLevel1Detail.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/quartz/RefreshLevel1Detail.java
+END
+RefreshStockInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/idata/!svn/ver/72/idata/src/com/shendeng/quartz/RefreshStockInfo.java
+END
+CheckRunStatus.java
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/idata/!svn/ver/59/idata/src/com/shendeng/quartz/CheckRunStatus.java
+END

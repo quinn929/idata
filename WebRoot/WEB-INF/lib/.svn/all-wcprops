@@ -1,0 +1,209 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/idata/!svn/ver/14/idata/WebRoot/WEB-INF/lib
+END
+commons-collections-3.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/idata/!svn/ver/2/idata/WebRoot/WEB-INF/lib/commons-collections-3.2.jar
+END
+commons-pool-1.6.jar
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/idata/!svn/ver/4/idata/WebRoot/WEB-INF/lib/commons-pool-1.6.jar
+END
+httpclient-4.5.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/httpclient-4.5.2.jar
+END
+jackson-annotations-2.7.3.jar
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/jackson-annotations-2.7.3.jar
+END
+ezmorph-1.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/idata/!svn/ver/2/idata/WebRoot/WEB-INF/lib/ezmorph-1.0.jar
+END
+jna-4.1.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/jna-4.1.0.jar
+END
+slf4j-api-1.7.7.jar
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/slf4j-api-1.7.7.jar
+END
+com.shendeng.cluster-20150515.jar
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/com.shendeng.cluster-20150515.jar
+END
+jackson-core-2.7.3.jar
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/jackson-core-2.7.3.jar
+END
+commons-codec-1.9.jar
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/commons-codec-1.9.jar
+END
+jta.jar
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/jta.jar
+END
+c3p0-0.9.1.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/idata/!svn/ver/4/idata/WebRoot/WEB-INF/lib/c3p0-0.9.1.2.jar
+END
+commons-logging-1.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/commons-logging-1.2.jar
+END
+redisson-1.2.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/redisson-1.2.0.jar
+END
+opencsv-2.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/opencsv-2.2.jar
+END
+log4j-1.2.17.jar
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/log4j-1.2.17.jar
+END
+httpcore-4.4.4.jar
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/httpcore-4.4.4.jar
+END
+httpmime-4.5.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/httpmime-4.5.2.jar
+END
+ridl-3.2.1.jar
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/ridl-3.2.1.jar
+END
+commons-io-2.4.jar
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/idata/!svn/ver/5/idata/WebRoot/WEB-INF/lib/commons-io-2.4.jar
+END
+javacsv.jar
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/idata/!svn/ver/5/idata/WebRoot/WEB-INF/lib/javacsv.jar
+END
+fastjson-1.2.10.jar
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/fastjson-1.2.10.jar
+END
+json-lib-2.4-jdk15.jar
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/idata/!svn/ver/2/idata/WebRoot/WEB-INF/lib/json-lib-2.4-jdk15.jar
+END
+jsoup-1.8.1.jar
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/idata/!svn/ver/2/idata/WebRoot/WEB-INF/lib/jsoup-1.8.1.jar
+END
+commons-lang-2.4.jar
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/idata/!svn/ver/2/idata/WebRoot/WEB-INF/lib/commons-lang-2.4.jar
+END
+httpclient-cache-4.5.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/httpclient-cache-4.5.2.jar
+END
+commons-beanutils-1.7.jar
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/idata/!svn/ver/2/idata/WebRoot/WEB-INF/lib/commons-beanutils-1.7.jar
+END
+jna-platform-4.1.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/jna-platform-4.1.0.jar
+END
+jedis-2.1.0.jar
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/idata/!svn/ver/4/idata/WebRoot/WEB-INF/lib/jedis-2.1.0.jar
+END
+quartz-all-1.8.5.jar
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/quartz-all-1.8.5.jar
+END
+netty-all-4.1.0.CR5.jar
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/netty-all-4.1.0.CR5.jar
+END
+mysql-connector-5.1.8.jar
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/idata/!svn/ver/4/idata/WebRoot/WEB-INF/lib/mysql-connector-5.1.8.jar
+END
+jackson-databind-2.7.3.jar
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/idata/!svn/ver/63/idata/WebRoot/WEB-INF/lib/jackson-databind-2.7.3.jar
+END
+httpclient-win-4.5.2.jar
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/idata/!svn/ver/67/idata/WebRoot/WEB-INF/lib/httpclient-win-4.5.2.jar
+END

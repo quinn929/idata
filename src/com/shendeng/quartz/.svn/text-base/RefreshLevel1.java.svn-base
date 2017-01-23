@@ -1,0 +1,99 @@
+package com.shendeng.quartz;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+
+import com.shendeng.datamanager.IndustryManager;
+import com.shendeng.datamanager.KlineManager;
+import com.shendeng.datamanager.Level1Manager;
+import com.shendeng.utils.Const;
+import com.shendeng.utils.DateTool;
+
+/**
+ * 所有数据快照定时任务
+ * 
+ * @author naxj
+ */
+public class RefreshLevel1 implements Job {
+
+	public void execute(JobExecutionContext arg0) {
+		ExecutorService threadPool = Executors.newFixedThreadPool(5);
+		try {
+			if (Const.isTradingDay) {
+				if((new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 09:15:00")) > 0) && (new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 15:10:00")) < 0)){
+					// 股票行业排行
+					threadPool.submit(new processIndustrySort());
+					if ((new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 09:25:30")) > 0) && (new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 15:10:00")) < 0)) {
+						// 跟新所有数据快照
+						threadPool.submit(new downloadData());
+						Level1Manager.getInstance().getLevel1Detail(false);
+					}
+				}
+				
+			}
+		} catch (Exception e) {
+			//失败再来一次
+			try {
+				if((new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 09:15:00")) > 0) && (new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 15:10:00")) < 0)){
+					// 股票行业排行
+					threadPool.submit(new processIndustrySort());
+					if ((new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 09:25:30")) > 0) && (new Date().compareTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(DateTool.DateToStr(new Date(), "yyyy-MM-dd") + " 15:10:00")) < 0)) {
+						// 跟新所有数据快照
+						threadPool.submit(new downloadData());
+						Level1Manager.getInstance().getLevel1Detail(false);
+					}
+				}
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+			new Exception("定时任务执行失败 RefreshLevel1" + DateTool.DateToStr(new Date(), DateTool.TIME_FORMAT)).printStackTrace();
+		} finally {
+			threadPool.shutdown();
+		}
+	}
+
+}
+
+/**
+ * 下载股票数据快照
+ * 
+ * @author qy
+ * @date 2016年6月26日
+ */
+class downloadData implements Runnable {
+	@Override
+	public void run() {
+		try {
+			Level1Manager.getInstance().downloadData();
+//			Level1Manager.getInstance().getLevel1DetailByTL();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+
+/**
+ * 处理行业排名
+ * 
+ * @author qy
+ * @date 2016年6月26日
+ */
+class processIndustrySort implements Runnable {
+	@Override
+	public void run() {
+		try {
+			IndustryManager.getInstance().processIndustrySort();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}

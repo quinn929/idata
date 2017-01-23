@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/idata/!svn/ver/81/idata/src/com/shendeng/utils
+END
+MyX509TrustManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/utils/MyX509TrustManager.java
+END
+JedisUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/utils/JedisUtil.java
+END
+WmcloudUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/idata/!svn/ver/80/idata/src/com/shendeng/utils/WmcloudUtil.java
+END
+SystemConfig.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/idata/!svn/ver/60/idata/src/com/shendeng/utils/SystemConfig.java
+END
+StockUtils.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/idata/!svn/ver/81/idata/src/com/shendeng/utils/StockUtils.java
+END
+RedisUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/idata/!svn/ver/69/idata/src/com/shendeng/utils/RedisUtil.java
+END
+JsoupUtils.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/utils/JsoupUtils.java
+END
+HttpsUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/idata/!svn/ver/79/idata/src/com/shendeng/utils/HttpsUtil.java
+END
+SerializeUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/idata/!svn/ver/52/idata/src/com/shendeng/utils/SerializeUtil.java
+END
+RedissonUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/idata/!svn/ver/60/idata/src/com/shendeng/utils/RedissonUtil.java
+END
+StrTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/idata/!svn/ver/72/idata/src/com/shendeng/utils/StrTool.java
+END
+DateTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/idata/!svn/ver/54/idata/src/com/shendeng/utils/DateTool.java
+END
+Const.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/idata/!svn/ver/73/idata/src/com/shendeng/utils/Const.java
+END
+HttpUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/idata/!svn/ver/67/idata/src/com/shendeng/utils/HttpUtil.java
+END

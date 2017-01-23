@@ -1,0 +1,94 @@
+8
+
+dir
+39
+https://sdserver/svn/idata/idata/WebRoot
+https://sdserver/svn/idata
+
+
+
+2016-02-28T02:32:38.426663Z
+16
+ph
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+d8dac535-3dfd-5845-8230-081765370aea
+
+META-INF
+dir
+
+WEB-INF
+dir
+
+cordova.js
+file
+67
+
+
+
+2016-07-22T02:24:33.907000Z
+df2a3d4378f7d5809113a44eb8b3c26c
+2016-09-12T01:52:32.163666Z
+67
+qy
+
+cordova_plugins.js
+file
+67
+
+
+
+2016-07-22T02:24:33.911000Z
+0f0dd3aba3766c5d2795941ced344265
+2016-09-12T01:52:32.163666Z
+67
+qy
+
+index.html
+file
+67
+
+
+
+2016-07-22T05:48:13.506000Z
+edcb3c55ed5be9b5252b0804177765df
+2016-09-12T01:52:32.163666Z
+67
+qy
+
+index.jsp
+file
+
+
+
+
+2016-04-01T05:41:50.076000Z
+eeaff70c88d02f76d125e1ef2a7e7c9f
+2016-02-02T02:40:14.610742Z
+2
+ph
+
+payment.js
+file
+67
+
+
+
+2016-07-22T02:24:33.914000Z
+6a59502d191fdd1cd674f027bf63d418
+2016-09-12T01:52:32.163666Z
+67
+qy
+
